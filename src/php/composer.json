@@ -1,0 +1,21 @@
+{
+  "require": {
+    "aws/aws-sdk-php": "^3.26",
+    "attics/llog": "dev-master",
+    "monolog/monolog": "*",
+    "phalcon/incubator": "^2.0",
+    "phpunit/phpunit": "^4.5.0",
+    "atticlab/libface-php": "dev-master",
+    "ramsey/uuid": "^3.6"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://bitbucket.org/attics/llog"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/atticlab/libface-php"
+    }
+  ]
+}

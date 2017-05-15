@@ -1,0 +1,46 @@
+version: '2'
+services:
+
+  nginx:
+    restart: always
+    container_name: skeleton-nginx
+    build: docker/nginx
+    ports:
+      - "8001:80"
+    volumes:
+      - ./src:/src
+      - ./logs/nginx/:/logs
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d/
+    links:
+      - php
+
+  php:
+    restart: always
+    container_name: skeleton-php
+    build: docker/php
+    volumes:
+      - ./src:/src
+      - ./logs:/logs
+      - storage:/bad_photo
+    env_file:
+      - ./.env
+    links:
+      - mysql
+
+  mysql:
+   restart: always
+   container_name: skeleton-mysql
+   build: docker/mysql
+   ports:
+     - "3306:3306"
+   volumes:
+     - ./logs/mysql/:/logs
+     - storage:/var/lib/mysql/
+   environment:
+     MYSQL_USER: "${MYSQL_USER}"
+     MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+     MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+     MYSQL_DATABASE: "${MYSQL_DATABASE}"
+
+volumes:
+  storage:
