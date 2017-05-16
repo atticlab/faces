@@ -30,10 +30,6 @@ class Users extends Model
             throw new \Exception('Can not create user');
         }
 
-        if (!Faces::createFace($user->id, $faceId, $service_id, 0)) {
-            throw new \Exception('Can not create face');
-        }
-
         return $user;
     }
 

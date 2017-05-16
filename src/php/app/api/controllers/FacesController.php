@@ -54,6 +54,7 @@ class FacesController extends ControllerBase
                 $response = $recognition->getIds($photo);
                 $faceMatches = 0;
                 $detected_user = null;
+                $new_face_ids = [];
 
                 foreach ($response as $item) {
                     $face = Faces::getFace($item->face_id, $item->service_id);
@@ -63,29 +64,34 @@ class FacesController extends ControllerBase
                         $user = Users::getUser($face->user_id);
                         if (empty($detected_user->uu_id)) {
                             $detected_user = $user;
-                            if (!Faces::updateMatches($face->user_id, $item->face_id)
-                            ) {
-                                $this->logger->error('Can not update matches for user with id ' . $face->user_id);
-                            }
-                        } else {
-                            if ($detected_user->uu_id != $user->uu_id) {
-                                //PANIC! One photo recognized like few our clients!!!
-                                $bad_photo_name = sha1(microtime());
-                                file_put_contents(Helpers::sfile($bad_photo_name, '/bad_photo') . $bad_photo_name, $photo);
-                                $this->logger->error('PANIC! One photo recognized like few our clients!!!');
-                                throw new \Exception('SERVICE_ERROR');
-                            }
+                        } elseif ($detected_user->uu_id != $user->uu_id) {
+                            //PANIC! One photo recognized like few our clients!!!
+                            $bad_photo_name = sha1(microtime());
+                            file_put_contents(Helpers::sfile($bad_photo_name, '/bad_photo') . $bad_photo_name, $photo);
+                            $this->logger->error('PANIC! One photo recognized like few our clients!!!');
+
+                            throw new \Exception('SERVICE_ERROR');
+                        }
+                        if (!Faces::updateMatches($face->user_id, $item->face_id)
+                        ) {
+                            $this->logger->error('Can not update matches for face with id ' . $item->face_id . ' and user id ' . $face->user_id);
                         }
                         $faceMatches++;
                     } else {
-                        //this face is new for us
-                        if (is_object($detected_user) && !empty($detected_user->uu_id)) {
-                            //if one face was already detected
-                            Faces::createFace($detected_user->id, $item->face_id, $item->service_id, 0);
-                        } else {
-                            //need to create new user in our db
-                            $detected_user = Users::createUser($item->face_id, $item->service_id);
-                        }
+                        //remember new faces for added it to new/existed user
+                        $new_face_ids[] = $item;
+                    }
+                }
+
+                //check new faces
+                if (!empty($new_face_ids)) {
+                    //if we don't detected existed user - create new user
+                    if (empty($detected_user)) {
+                        $detected_user = Users::createUser();
+                    }
+                    //associate all new faces to detected user
+                    foreach ($new_face_ids as $new_face_id) {
+                        Faces::createFace($detected_user->id, $new_face_id->face_id, $new_face_id->service_id, 0);
                     }
                 }
 
