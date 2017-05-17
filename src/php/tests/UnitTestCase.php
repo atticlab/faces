@@ -3,8 +3,8 @@
 use Phalcon\Di;
 use Phalcon\Test\UnitTestCase as PhalconTestCase;
 use SWP\Services\RiakDBService;
-use GuzzleHttp\Client;
 use Smartmoney\Stellar\Account;
+use Phalcon\Db\Adapter\Pdo\Mysql;
 
 abstract class UnitTestCase extends PhalconTestCase
 {
@@ -28,6 +28,24 @@ abstract class UnitTestCase extends PhalconTestCase
 
         $di->set('response', function () {
             return new \App\Lib\Response();
+        });
+
+        # Register DB
+        $di->set('db', function () {
+
+            $connection = new Mysql(
+                [
+                    "host"     => 'mysql',
+                    "username" => getenv('MYSQL_USER'),
+                    "password" => getenv('MYSQL_PASSWORD'),
+                    "dbname"   => getenv('MYSQL_DATABASE'),
+                    "port"     => 3306,
+                ]
+            );
+
+            $connection->connect();
+
+            return $connection;
         });
 
         $this->setDi($di);

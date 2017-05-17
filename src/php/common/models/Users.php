@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
 use Phalcon\Mvc\Model;
-use App\Models\Faces;
 
 class Users extends Model
 {
@@ -15,6 +14,7 @@ class Users extends Model
      * @param $faceId
      * @param $service_id
      * @return \Ramsey\Uuid\UuidInterface|string
+     * @throws \Exception
      */
     public static function createUser($faceId, $service_id)
     {

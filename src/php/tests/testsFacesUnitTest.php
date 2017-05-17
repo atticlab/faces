@@ -1,9 +1,8 @@
 <?php
 
-namespace Companies;
+namespace Faces;
 
 use App\Lib\Response;
-use \App\Models\Companies;
 use Phalcon\DI;
 use Smartmoney\Stellar\Account;
 use GuzzleHttp\Client;
@@ -24,17 +23,17 @@ class FacesUnitTest extends \UnitTestCase
 
         return [
 
-            //example: array (photo, http_code, err_code, login) - if login true - make ogin, else - registration
+            //example: array (photo, http_code, err_code, login, clear_after_test) - if login true - make login, else - registration
 
             //no photo - login
-            [$no_photo, 400, Exception::FILE_EMPTY, true],
+            [$no_photo, 400, Exception::FILE_EMPTY, true, false],
 
             //no photo - registration
-            [$no_photo, 400, Exception::FILE_EMPTY, false],
+            [$no_photo, 400, Exception::FILE_EMPTY, false, false],
 
 //            //non image - login
-
 //            array($base64_non_image, http_code, err_code, true),
+
 //            //non image - registration
 //            array($base64_non_image, http_code, err_code, false),
 //
@@ -45,13 +44,13 @@ class FacesUnitTest extends \UnitTestCase
 //            array($base64_bad_photo, http_code, err_code, false),
 
             //good photo, login
-            [$base64_good_photo, 400, Response::USER_NOT_FOUND],
+            [$base64_good_photo, 400, Response::USER_NOT_FOUND, true, false],
 
             //good photo, registration
-            [$base64_good_photo, 200, null, false],
+            [$base64_good_photo, 200, null, false, false],
 
             //good photo, login
-            [$base64_good_photo, 200, null, true]
+            [$base64_good_photo, 200, null, true, true]
 
         ];
 
@@ -60,7 +59,7 @@ class FacesUnitTest extends \UnitTestCase
     /**
      * @dataProvider facesProvider
      */
-    public function testFaces($base64, $http_code, $err_code, $login)
+    public function testFaces($base64, $http_code, $err_code, $login, $clear_after_test)
     {
         parent::setUp();
         $client = new Client();
@@ -82,12 +81,9 @@ class FacesUnitTest extends \UnitTestCase
             );
         } else {
             //register
-
-            $client = new Client();
-
             $response = $client->request(
                 'POST',
-                rtrim($this->_host, '/') . '/faces/register',
+                rtrim($this->_host, '/') . '/faces/registration',
                 [
                     'headers'     => [
 
@@ -129,12 +125,18 @@ class FacesUnitTest extends \UnitTestCase
             );
         }
 
-        //when we make test that success create company
-        if ($real_http_code == 200) {
+        if ($clear_after_test) {
 
+            $this->assertTrue(
+                property_exists($encode_data, 'faceId')
+            );
+
+            $this->assertTrue(
+                !empty($encode_data->faceId)
+            );
+
+            $sql = "DELETE FROM users WHERE `uu_id` = (?)";
+            DI::getDefault()->getDb()->execute($sql, [$encode_data->faceId]);
         }
-
     }
-
-    //TODO:
 }
