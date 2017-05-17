@@ -2,6 +2,7 @@
 
 namespace Companies;
 
+use App\Lib\Response;
 use \App\Models\Companies;
 use Phalcon\DI;
 use Smartmoney\Stellar\Account;
@@ -14,7 +15,7 @@ use Atticlab\Libface\Recognition\Exception;
 class FacesUnitTest extends \UnitTestCase
 {
 
-    public static function getIdProvider()
+    public static function facesProvider()
     {
         $no_photo = null;
         $base64_non_image = '';
@@ -23,53 +24,87 @@ class FacesUnitTest extends \UnitTestCase
 
         return [
 
-            //example: array (photo, http_code, err_code)
+            //example: array (photo, http_code, err_code, login) - if login true - make ogin, else - registration
 
-            //no photo
-            [$no_photo, 400, Exception::FILE_EMPTY],
+            //no photo - login
+            [$no_photo, 400, Exception::FILE_EMPTY, true],
 
-//            //non image
-//            array($base64_non_image),
+            //no photo - registration
+            [$no_photo, 400, Exception::FILE_EMPTY, false],
+
+//            //non image - login
+
+//            array($base64_non_image, http_code, err_code, true),
+//            //non image - registration
+//            array($base64_non_image, http_code, err_code, false),
 //
-//            //bad photo
-//            array($base64_bad_photo),
+//            //bad photo - login
+//            array($base64_bad_photo, http_code, err_code, true),
 
-            //good photo
-            [$base64_good_photo, 200, ''],
+//            //bad photo - registration
+//            array($base64_bad_photo, http_code, err_code, false),
+
+            //good photo, login
+            [$base64_good_photo, 400, Response::USER_NOT_FOUND],
+
+            //good photo, registration
+            [$base64_good_photo, 200, null, false],
+
+            //good photo, login
+            [$base64_good_photo, 200, null, true]
 
         ];
 
     }
 
     /**
-     * @dataProvider getIdProvider
+     * @dataProvider facesProvider
      */
-    public function testGetId($base64, $http_code, $err_code)
+    public function testFaces($base64, $http_code, $err_code, $login)
     {
-
         parent::setUp();
-
         $client = new Client();
 
-        // Create a POST request
-        $response = $client->request(
-            'POST',
-            rtrim($this->_host, '/') . '/faces/get-id',
-            [
-                'headers'     => [
+        if ($login) {
+            //login
+            $response = $client->request(
+                'POST',
+                rtrim($this->_host, '/') . '/faces/login',
+                [
+                    'headers'     => [
 
-                ],
-                'http_errors' => false,
-                'json'        => [
-                    "photo" => $base64,
+                    ],
+                    'http_errors' => false,
+                    'json'        => [
+                        "photo" => $base64,
+                    ]
                 ]
-            ]
-        );
+            );
+        } else {
+            //register
+
+            $client = new Client();
+
+            $response = $client->request(
+                'POST',
+                rtrim($this->_host, '/') . '/faces/register',
+                [
+                    'headers'     => [
+
+                    ],
+                    'http_errors' => false,
+                    'json'        => [
+                        "photo" => $base64,
+                    ]
+                ]
+            );
+        }
 
         $real_http_code = $response->getStatusCode();
         $stream = $response->getBody();
         $body = $stream->getContents();
         $encode_data = json_decode($body);
+
         //test http code
         $this->assertEquals(
             $http_code,
@@ -96,8 +131,10 @@ class FacesUnitTest extends \UnitTestCase
 
         //when we make test that success create company
         if ($real_http_code == 200) {
-            //TODO: check response
+
         }
 
     }
+
+    //TODO:
 }
