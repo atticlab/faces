@@ -11,7 +11,7 @@ use Atticlab\Libface\Recognition\Exception;
 /**
  * Class UnitTest
  */
-class CompaniesUnitTest extends \UnitTestCase
+class FacesUnitTest extends \UnitTestCase
 {
 
     public static function getIdProvider()

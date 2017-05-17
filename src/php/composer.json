@@ -4,7 +4,7 @@
     "attics/llog": "dev-master",
     "monolog/monolog": "*",
     "phalcon/incubator": "^2.0",
-    "phpunit/phpunit": "^4.5.0",
+    "phpunit/phpunit": "4.5.0",
     "atticlab/libface-php": "dev-master",
     "ramsey/uuid": "^3.6"
   },
