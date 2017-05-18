@@ -25,7 +25,7 @@ class FacesController extends ControllerBase
 
     /**
      * @var array
-     * list of face recognition service sort by priority!!!
+     * list of face recognition service sort by priority
      */
     private $_services = [];
 
@@ -51,7 +51,7 @@ class FacesController extends ControllerBase
 
                 throw new Exception(Exception::FILE_EMPTY);
             } else {
-                $recognition = new RecognitionBase($this->getConfigs());
+                $recognition = new RecognitionBase($this->getConfigs(), $this->logger);
                 $response = $recognition->getIds($photo);
                 $faceMatches = 0;
                 $detected_user = null;
@@ -125,7 +125,7 @@ class FacesController extends ControllerBase
                 $this->lerror(Exception::FILE_EMPTY);
                 throw new Exception(Exception::FILE_EMPTY);
             } else {
-                $recognition = new RecognitionBase($this->getConfigs());
+                $recognition = new RecognitionBase($this->getConfigs(), $this->logger);
 
                 foreach ($this->_services as $key => $service) {
                     try {
@@ -161,24 +161,23 @@ class FacesController extends ControllerBase
     {
         $configs = new Config();
         $configs->enableKairos($this->config->Kairos->app_id, $this->config->Kairos->app_key,
-            $this->config->Kairos->gallery_name, $this->logger);
+            $this->config->Kairos->gallery_name);
         $configs->enableVisionLabs($this->config->VisionLab->token, $this->config->VisionLab->descriptor_lists,
-            $this->config->VisionLab->person_lists, $this->logger);
+            $this->config->VisionLab->person_lists);
 
         //add services to priority list
         //first added - max priority services
         //last added - min priority services
-        $this->addService(new Kairos($this->config->Kairos->app_id, $this->config->Kairos->app_key,
-            $this->config->Kairos->gallery_name));
+        $services = $configs->getHandlers();
 
-        $this->addService(new VisionLabs($this->config->VisionLab->token, $this->config->VisionLab->descriptor_lists,
-            $this->config->VisionLab->person_lists));
+        $this->addService($services[Kairos::ID]);
+        $this->addService($services[VisionLabs::ID]);
 
         return $configs;
     }
 
     /**
-     * get configs
+     * add services to priority list
      */
     private function addService($service)
     {

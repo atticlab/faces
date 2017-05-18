@@ -12,10 +12,10 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/atticlab/libface-php",
-                "reference": "bc2aa373d565236db1d51542b12cbfbb9bab2ef0"
+                "reference": "6bd404e5fee36a51fae073d01594d2311a55b246"
             },
             "require": {
-                "monolog/monolog": "^1.22"
+                "guzzlehttp/guzzle": "^6.2.3"
             },
             "type": "library",
             "autoload": {
@@ -32,7 +32,7 @@
                     "email": "MikhalichenkoEvgeniy@gmail.com"
                 }
             ],
-            "time": "2017-05-17 18:07:42"
+            "time": "2017-05-18 09:10:01"
         },
         {
             "name": "attics/llog",
@@ -57,16 +57,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.27.4",
+            "version": "3.27.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "3f313d2bfb7c56fecf58fc728701f7282a39e318"
+                "reference": "1eece595cdcac0f10616d6b631d0db0878de4f53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3f313d2bfb7c56fecf58fc728701f7282a39e318",
-                "reference": "3f313d2bfb7c56fecf58fc728701f7282a39e318",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1eece595cdcac0f10616d6b631d0db0878de4f53",
+                "reference": "1eece595cdcac0f10616d6b631d0db0878de4f53",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-05-16T20:49:25+00:00"
+            "time": "2017-05-17T22:37:49+00:00"
         },
         {
             "name": "doctrine/instantiator",
