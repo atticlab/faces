@@ -2,6 +2,7 @@
 
 namespace Faces;
 
+use App\Lib\Response;
 use Phalcon\DI;
 use GuzzleHttp\Client;
 use Atticlab\Libface\Recognition\Exception;
