@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/atticlab/libface-php",
-                "reference": "6bd404e5fee36a51fae073d01594d2311a55b246"
+                "reference": "d65ce08ebb19c97135abe98f4685e82b01496fb6"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.2.3"
@@ -32,7 +32,7 @@
                     "email": "MikhalichenkoEvgeniy@gmail.com"
                 }
             ],
-            "time": "2017-05-18 09:10:01"
+            "time": "2017-05-18 09:52:33"
         },
         {
             "name": "attics/llog",
