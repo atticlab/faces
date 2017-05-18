@@ -20,7 +20,7 @@ return new \Phalcon\Config([
 
     'VisionLab' => [
         'token' => '52d844c1-61e5-43ca-b61b-755121542c5d',
-        'list_id' => 'c2939c76-b93c-4bb9-813a-7b3ec76683c1',
-        'person_lists' => 'c2939c76-b93c-4bb9-813a-7b3ec76683c1'
+        'descriptor_lists' => '764235a0-a5ea-4a62-98b9-0ee3958678c4',
+        'person_lists' => '51b9dbcb-66a6-4170-9c1d-abbe23146ec6'
     ]
 ]);

@@ -11,12 +11,10 @@ class Users extends Model
     public $id;
 
     /**
-     * @param $faceId
-     * @param $service_id
      * @return \Ramsey\Uuid\UuidInterface|string
      * @throws \Exception
      */
-    public static function createUser($faceId, $service_id)
+    public static function createUser()
     {
         $user = new self();
         $user->uu_id = Uuid::uuid1()->toString();

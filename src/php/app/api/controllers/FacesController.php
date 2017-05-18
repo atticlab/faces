@@ -9,6 +9,7 @@ use Atticlab\Libface\Recognition\RecognitionBase;
 use App\Lib\Helpers;
 use App\Models\Faces;
 use App\Models\Users;
+use Atticlab\Libface\Recognition\VisionLabs;
 use attics\Lib\Llog\Logger;
 use Phalcon\Di;
 
@@ -103,8 +104,10 @@ class FacesController extends ControllerBase
             }
 
         } catch (Exception $e) {
+            $this->logger->error($e->getMessage());
             return $this->response->error($e->getCode());
         } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
             return $this->response->error($e->getMessage());
         }
     }
@@ -158,13 +161,18 @@ class FacesController extends ControllerBase
     {
         $configs = new Config();
         $configs->enableKairos($this->config->Kairos->app_id, $this->config->Kairos->app_key,
-            $this->config->Kairos->gallery_name);
+            $this->config->Kairos->gallery_name, $this->logger);
+        $configs->enableVisionLabs($this->config->VisionLab->token, $this->config->VisionLab->descriptor_lists,
+            $this->config->VisionLab->person_lists, $this->logger);
 
         //add services to priority list
         //first added - max priority services
         //last added - min priority services
         $this->addService(new Kairos($this->config->Kairos->app_id, $this->config->Kairos->app_key,
             $this->config->Kairos->gallery_name));
+
+        $this->addService(new VisionLabs($this->config->VisionLab->token, $this->config->VisionLab->descriptor_lists,
+            $this->config->VisionLab->person_lists));
 
         return $configs;
     }
