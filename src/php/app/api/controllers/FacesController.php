@@ -27,7 +27,7 @@ class FacesController extends ControllerBase
      * @var array
      * list of face recognition service sort by priority
      */
-    private $_services = [];
+    private $_services_priority_list = [];
 
     /**
      * Connection check
@@ -107,8 +107,8 @@ class FacesController extends ControllerBase
             $this->logger->error($e->getMessage());
             return $this->response->error($e->getCode());
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-            return $this->response->error($e->getMessage());
+            $this->logger->error('Service error', [$e]);
+            return $this->response->error('SERVICE_ERROR');
         }
     }
 
@@ -118,7 +118,6 @@ class FacesController extends ControllerBase
     public function loginAction()
     {
         try {
-            $this->setLogger(Di::getDefault()->getShared('logger'));
             $photo = $this->payload->photo ?? null;
 
             if (is_null($photo)) {
@@ -127,7 +126,12 @@ class FacesController extends ControllerBase
             } else {
                 $recognition = new RecognitionBase($this->getConfigs(), $this->logger);
 
-                foreach ($this->_services as $key => $service) {
+                if (empty($this->_services_priority_list)) {
+                    $this->logger->notice('Priority list is empty or bad configure. Use all service that was added, priority ignored');
+                    $this->_services_priority_list = $this->getConfigs()->getHandlers();
+                }
+
+                foreach ($this->_services_priority_list as $key => $service) {
                     try {
                         $response = $recognition->getIdByService($photo, $service);
                         $face = Faces::getFace($response->face_id, $response->service_id);
@@ -142,8 +146,10 @@ class FacesController extends ControllerBase
                             }
                         }
                     } catch (Exception $e) {
-                        $this->logger->error('Service ' . (is_object($service) ? '(' . get_class($service) . ')' : '') . ' with priority ' . $key . ' can not get face id');
-                        continue;
+                        $this->logger->error('Face recognition service ' . (is_object($service) ? '(' . get_class($service) . ')' : '') . ' with priority ' . $key . ' return error on login try');
+                        $this->logger->error($e->getMessage(), [$e]);
+
+                        return $this->response->error($e->getCode());
                     }
                 }
 
@@ -151,6 +157,9 @@ class FacesController extends ControllerBase
             }
         } catch (Exception $e) {
             return $this->response->error($e->getCode());
+        } catch (\Exception $e) {
+            $this->logger->error('Service error', [$e]);
+            return $this->response->error('SERVICE_ERROR');
         }
     }
 
@@ -170,8 +179,13 @@ class FacesController extends ControllerBase
         //last added - min priority services
         $services = $configs->getHandlers();
 
-        $this->addService($services[Kairos::ID]);
-        $this->addService($services[VisionLabs::ID]);
+        if (!empty($services[Kairos::ID]) || $services[Kairos::ID] instanceof Kairos) {
+            $this->addServiceToPriorityList($services[Kairos::ID]);
+        }
+
+        if (!empty($services[VisionLabs::ID]) || $services[VisionLabs::ID] instanceof VisionLabs) {
+            $this->addServiceToPriorityList($services[VisionLabs::ID]);
+        }
 
         return $configs;
     }
@@ -179,8 +193,8 @@ class FacesController extends ControllerBase
     /**
      * add services to priority list
      */
-    private function addService($service)
+    private function addServiceToPriorityList($service)
     {
-        $this->_services[] = $service;
+        $this->_services_priority_list[] = $service;
     }
 }

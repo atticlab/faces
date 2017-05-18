@@ -2,9 +2,7 @@
 
 namespace Faces;
 
-use App\Lib\Response;
 use Phalcon\DI;
-use Smartmoney\Stellar\Account;
 use GuzzleHttp\Client;
 use Atticlab\Libface\Recognition\Exception;
 
@@ -18,7 +16,8 @@ class FacesUnitTest extends \UnitTestCase
     {
         $no_photo = null;
         $base64_non_image = '';
-        $base64_bad_photo = '';
+        $base64_bad_small_photo = '';
+        $base64_bad_big_photo = '';
         $base64_good_photo = file_get_contents('base64_good_photo.txt');
 
         return [
@@ -37,11 +36,17 @@ class FacesUnitTest extends \UnitTestCase
 //            //non image - registration
 //            array($base64_non_image, http_code, err_code, false),
 //
-//            //bad photo - login
-//            array($base64_bad_photo, http_code, err_code, true),
+//            //bad small photo - login
+//            array($base64_bad_small_photo, http_code, err_code, true),
 
-//            //bad photo - registration
-//            array($base64_bad_photo, http_code, err_code, false),
+//            //bad small photo - registration
+//            array($base64_bad_small_photo, http_code, err_code, false),
+
+//            //bad big photo - login
+//            array($base64_bad_big_photo, http_code, err_code, true),
+
+//            //bad big photo - registration
+//            array($base64_bad_big_photo, http_code, err_code, false),
 
             //good photo, login
             [$base64_good_photo, 400, Response::USER_NOT_FOUND, true, false],
@@ -53,7 +58,6 @@ class FacesUnitTest extends \UnitTestCase
             [$base64_good_photo, 200, null, true, true]
 
         ];
-
     }
 
     /**
